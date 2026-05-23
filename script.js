@@ -1,4 +1,4 @@
-const BACKEND_URL = "http://127.0.0.1:8000/chat/stream";
+const BACKEND_URL = "https://recant-rebirth-expanse.ngrok-free.dev/chat/stream";
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 const canUseTTS = "speechSynthesis" in window;
