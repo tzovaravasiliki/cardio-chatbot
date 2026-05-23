@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cardio Chatbot — Ελληνικά, ESC & ACC/AHA/HRS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    #onboarding {
+      position:fixed;inset:0;background:rgba(0,0,0,0.82);
+      z-index:9999;display:flex;align-items:center;justify-content:center;
+    }
+    #onboarding.hidden{display:none;}
+    .onb-card{
+      background:#0d1a2e;border:1px solid rgba(99,140,255,0.3);
+      border-radius:20px;padding:36px 40px;max-width:700px;width:90%;
+      box-shadow:0 24px 80px rgba(0,0,0,0.6);
+    }
+    .onb-card h2{margin:0 0 6px;font-size:22px;color:#93c5fd;font-family:Inter,sans-serif;}
+    .onb-card p.sub{color:#9ca3af;font-size:13px;margin:0 0 24px;font-family:Inter,sans-serif;}
+    .onb-features{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;}
+    .onb-feat{background:rgba(255,255,255,0.04);border:1px solid rgba(99,140,255,0.15);border-radius:12px;padding:14px;}
+    .onb-feat .icon{font-size:22px;margin-bottom:6px;}
+    .onb-feat h4{margin:0 0 4px;font-size:13px;color:#e8f0ff;font-family:Inter,sans-serif;}
+    .onb-feat p{margin:0;font-size:11px;color:#9ca3af;line-height:1.5;font-family:Inter,sans-serif;}
+    .onb-start{width:100%;padding:13px;background:linear-gradient(135deg,#2563eb,#7c3aed);
+      border:none;border-radius:12px;color:white;font-size:15px;font-weight:600;
+      cursor:pointer;font-family:Inter,sans-serif;transition:opacity 0.15s;}
+    .onb-start:hover{opacity:0.9;}
+    #helpBtn{position:fixed;bottom:20px;right:20px;width:42px;height:42px;
+      background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:50%;
+      color:white;font-size:18px;cursor:pointer;z-index:800;
+      box-shadow:0 4px 16px rgba(37,99,235,0.4);display:flex;align-items:center;justify-content:center;}
+    #helpBtn:hover{transform:scale(1.08);}
+    .feature-pills{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;
+      padding-bottom:12px;border-bottom:1px solid var(--border);}
+    .fpill{display:flex;align-items:center;gap:7px;background:rgba(99,140,255,0.06);
+      border:1px solid rgba(99,140,255,0.12);border-radius:8px;padding:6px 9px;
+      font-size:10px;color:#93c5fd;font-family:Inter,sans-serif;}
+    .fpill span.ico{font-size:13px;}
+    .diag-section{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+    .diag-section h4{font-size:10px;text-transform:uppercase;letter-spacing:0.06em;
+      color:var(--muted);margin:0 0 7px;font-family:Inter,sans-serif;}
+    .diag-btn{width:100%;text-align:left;background:rgba(99,140,255,0.06);
+      border:1px solid rgba(99,140,255,0.15);border-radius:8px;padding:7px 10px;
+      font-size:10px;color:#e8f0ff;cursor:pointer;margin-bottom:5px;
+      font-family:Inter,sans-serif;transition:background 0.15s;display:flex;align-items:center;gap:6px;}
+    .diag-btn:hover{background:rgba(99,140,255,0.14);border-color:rgba(99,140,255,0.35);}
+    .diag-btn .d-ico{font-size:14px;flex-shrink:0;}
+    .diag-btn .d-label{line-height:1.3;}
+    .diag-btn .d-sub{font-size:9px;color:var(--muted);display:block;}
+    .dpanel-hint{font-size:10px;color:#6ee7b7;padding:6px 12px;
+      background:rgba(110,231,183,0.05);border-bottom:1px solid rgba(99,140,255,0.1);}
+
+    /* ===== Professional Web App Additions ===== */
+    .app-stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin:10px 0 14px;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--border);
+    }
+    .stat-card{
+      background:linear-gradient(135deg,rgba(37,99,235,0.13),rgba(124,58,237,0.10));
+      border:1px solid rgba(99,140,255,0.18);
+      border-radius:12px;
+      padding:10px;
+      font-family:Inter,sans-serif;
+    }
+    .stat-card strong{
+      display:block;
+      color:#e8f0ff;
+      font-size:17px;
+      line-height:1;
+    }
+    .stat-card span{
+      display:block;
+      color:#93c5fd;
+      font-size:9px;
+      margin-top:5px;
+      line-height:1.25;
+    }
+    .protocol-group-title{
+      font-size:9px;
+      color:#6ee7b7;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      margin:10px 0 5px;
+      font-family:Inter,sans-serif;
+      font-weight:700;
+    }
+    .top-action-btn{
+      border:none;
+      border-radius:10px;
+      padding:8px 11px;
+      cursor:pointer;
+      background:rgba(99,140,255,0.10);
+      border:1px solid rgba(99,140,255,0.22);
+      color:#dbeafe;
+      font-size:11px;
+      font-family:Inter,sans-serif;
+      transition:background .15s, transform .15s;
+    }
+    .top-action-btn:hover{
+      background:rgba(99,140,255,0.18);
+      transform:translateY(-1px);
+    }
+    .onb-badges{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin:0 0 20px;
+    }
+    .onb-badge{
+      font-size:11px;
+      color:#dbeafe;
+      background:rgba(37,99,235,.16);
+      border:1px solid rgba(99,140,255,.22);
+      border-radius:999px;
+      padding:6px 10px;
+      font-family:Inter,sans-serif;
+    }
+    .about-modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.72);
+      z-index:9998;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+    .about-modal.open{display:flex;}
+    .about-card{
+      max-width:760px;
+      width:100%;
+      background:#0d1a2e;
+      border:1px solid rgba(99,140,255,0.35);
+      border-radius:20px;
+      box-shadow:0 24px 80px rgba(0,0,0,0.65);
+      overflow:hidden;
+      font-family:Inter,sans-serif;
+    }
+    .about-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:20px 24px;
+      background:linear-gradient(135deg,#12355a,#1d2762);
+      border-bottom:1px solid rgba(99,140,255,0.2);
+    }
+    .about-head h3{
+      margin:0;
+      color:#dbeafe;
+      font-size:18px;
+    }
+    .about-close{
+      border:none;
+      background:rgba(255,255,255,0.08);
+      color:white;
+      border-radius:10px;
+      width:34px;
+      height:34px;
+      cursor:pointer;
+      font-size:18px;
+    }
+    .about-body{
+      padding:22px 24px;
+      color:#cbd5e1;
+      font-size:13px;
+      line-height:1.7;
+    }
+    .about-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin:16px 0;
+    }
+    .about-mini{
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(99,140,255,0.12);
+      border-radius:12px;
+      padding:12px;
+    }
+    .about-mini b{
+      display:block;
+      color:#93c5fd;
+      margin-bottom:4px;
+    }
+    .about-warning{
+      margin-top:14px;
+      background:rgba(245,158,11,0.10);
+      border:1px solid rgba(245,158,11,0.28);
+      color:#fde68a;
+      border-radius:12px;
+      padding:12px;
+    }
+    @media(max-width:768px){
+      .about-grid{grid-template-columns:1fr;}
+      .app-stats{grid-template-columns:1fr 1fr;}
+      .onb-features{grid-template-columns:1fr;}
+    }
+
+
+    /* ===== Collapsible Protocol Sources ===== */
+    .collapsible-section{
+      margin-bottom:12px;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--border);
+    }
+    .collapsible-toggle{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      background:rgba(99,140,255,0.08);
+      border:1px solid rgba(99,140,255,0.18);
+      border-radius:10px;
+      padding:9px 10px;
+      color:#e8f0ff;
+      cursor:pointer;
+      font-family:Inter,sans-serif;
+      transition:background .15s,border-color .15s;
+      text-align:left;
+    }
+    .collapsible-toggle:hover{
+      background:rgba(99,140,255,0.15);
+      border-color:rgba(99,140,255,0.35);
+    }
+    .collapsible-toggle .ct-left{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .collapsible-toggle .ct-title{
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      color:#93c5fd;
+      font-weight:700;
+    }
+    .collapsible-toggle .ct-sub{
+      font-size:9px;
+      color:var(--muted);
+      line-height:1.25;
+    }
+    .collapsible-toggle .ct-arrow{
+      font-size:13px;
+      color:#93c5fd;
+      transition:transform .18s ease;
+    }
+    .collapsible-section.open .ct-arrow{
+      transform:rotate(180deg);
+    }
+    .collapsible-content{
+      display:none;
+      margin-top:8px;
+      animation:fadeInProtocols .18s ease;
+    }
+    .collapsible-section.open .collapsible-content{
+      display:block;
+    }
+    @keyframes fadeInProtocols{
+      from{opacity:0;transform:translateY(-4px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+
+
+    /* ===== Collapsible Suggested Questions ===== */
+    .suggested-count{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:18px;
+      height:18px;
+      border-radius:999px;
+      background:rgba(56,189,248,.16);
+      color:#bfdbfe;
+      font-size:10px;
+      font-weight:800;
+      margin-left:6px;
+    }
+
+
+    /* ===== RAG Methodology Modal ===== */
+    .method-modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.74);
+      z-index:9998;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+    .method-modal.open{display:flex;}
+    .method-card{
+      max-width:900px;
+      width:100%;
+      max-height:88vh;
+      overflow:auto;
+      background:#0d1a2e;
+      border:1px solid rgba(99,140,255,0.35);
+      border-radius:22px;
+      box-shadow:0 24px 80px rgba(0,0,0,0.68);
+      font-family:Inter,sans-serif;
+    }
+    .method-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:20px 24px;
+      background:linear-gradient(135deg,#12355a,#1d2762);
+      border-bottom:1px solid rgba(99,140,255,0.2);
+      position:sticky;
+      top:0;
+      z-index:2;
+    }
+    .method-head h3{
+      margin:0;
+      color:#dbeafe;
+      font-size:18px;
+    }
+    .method-close{
+      border:none;
+      background:rgba(255,255,255,0.08);
+      color:white;
+      border-radius:10px;
+      width:34px;
+      height:34px;
+      cursor:pointer;
+      font-size:18px;
+    }
+    .method-body{
+      padding:22px 24px;
+      color:#cbd5e1;
+      font-size:13px;
+      line-height:1.7;
+    }
+    .pipeline-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      margin:18px 0;
+    }
+    .pipeline-step{
+      position:relative;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(99,140,255,0.14);
+      border-radius:16px;
+      padding:13px 12px;
+      min-height:118px;
+      box-shadow:0 8px 22px rgba(0,0,0,.16);
+    }
+    .pipeline-step .pnum{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:28px;
+      height:28px;
+      border-radius:10px;
+      background:linear-gradient(135deg,#2563eb,#7c3aed);
+      color:white;
+      font-weight:800;
+      margin-bottom:8px;
+    }
+    .pipeline-step b{
+      display:block;
+      color:#93c5fd;
+      margin-bottom:5px;
+      font-size:12px;
+    }
+    .pipeline-step span{
+      display:block;
+      color:#aebbd4;
+      font-size:11px;
+      line-height:1.45;
+    }
+    .method-two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin:16px 0;
+    }
+    .method-box{
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(99,140,255,0.12);
+      border-radius:14px;
+      padding:14px;
+    }
+    .method-box b{
+      display:block;
+      color:#6ee7b7;
+      margin-bottom:6px;
+    }
+    .method-warning{
+      margin-top:14px;
+      background:rgba(245,158,11,0.10);
+      border:1px solid rgba(245,158,11,0.28);
+      color:#fde68a;
+      border-radius:14px;
+      padding:13px;
+    }
+    @media(max-width:900px){
+      .pipeline-grid{grid-template-columns:1fr 1fr;}
+      .method-two-col{grid-template-columns:1fr;}
+    }
+    @media(max-width:560px){
+      .pipeline-grid{grid-template-columns:1fr;}
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ONBOARDING -->
+  <div id="onboarding">
+    <div class="onb-card">
+      <h2>🫀 Καλώς ήρθες στο Cardio Chatbot</h2>
+      <p class="sub">Web εφαρμογή υποστήριξης κλινικών αποφάσεων για αρρυθμίες — Ελληνικά, ESC & ACC/AHA/HRS πρωτόκολλα</p>
+      <div class="onb-features">
+        <div class="onb-feat">
+          <div class="icon">💬</div>
+          <h4>Ρώτα στα ελληνικά</h4>
+          <p>Γράψε οποιαδήποτε καρδιολογική ερώτηση. Οι απαντήσεις βασίζονται αποκλειστικά σε επίσημα πρωτόκολλα.</p>
+        </div>
+        <div class="onb-feat">
+          <div class="icon">📊</div>
+          <h4>Διαδραστικά Flowcharts</h4>
+          <p>Εμφανίζεται αυτόματα το σχετικό διάγραμμα. Κάνε κλικ σε οποιοδήποτε βήμα για εξήγηση!</p>
+        </div>
+        <div class="onb-feat">
+          <div class="icon">👤</div>
+          <h4>Ασθενής ή Γιατρός;</h4>
+          <p>Επίλεξε τον τύπο σου επάνω δεξιά. Οι απαντήσεις προσαρμόζονται αυτόματα.</p>
+        </div>
+        <div class="onb-feat">
+          <div class="icon">📋</div>
+          <h4>Γρήγορα Διαγράμματα</h4>
+          <p>Κουμπιά στο αριστερό μενού ανοίγουν άμεσα τους κλινικούς αλγορίθμους.</p>
+        </div>
+      </div>
+      <button class="onb-start" onclick="document.getElementById('onboarding').classList.add('hidden');localStorage.setItem('onb_seen','1')">
+        Ξεκίνα →
+      </button>
+    </div>
+  </div>
+
+  <!-- HELP BUTTON -->
+  <button id="helpBtn" title="Οδηγός χρήσης" onclick="document.getElementById('onboarding').classList.remove('hidden')">?</button>
+
+  <div class="app-root">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Cardio Chatbot</h2>
+        <button class="small-btn" onclick="clearChat()">Καθαρισμός</button>
+      </div>
+
+      <div class="feature-pills">
+        <div class="fpill"><span class="ico">📖</span> Βάσει ελληνικών, ESC & ACC/AHA/HRS πρωτοκόλλων</div>
+        <div class="fpill"><span class="ico">🇬🇷</span> Ελληνικά + ESC + ACC/AHA/HRS οδηγίες</div>
+        <div class="fpill"><span class="ico">⚡</span> Streaming σε πραγματικό χρόνο</div>
+      </div>
+
+      <!-- Protocol PDFs -->
+      <!-- Protocol PDFs -->
+      <div class="collapsible-section" id="protocolSourcesSection">
+        <button class="collapsible-toggle" type="button" onclick="toggleProtocolSources()">
+          <span class="ct-left">
+            <span class="ct-title">📚 Κλινικές Πηγές & Πρωτόκολλα</span>
+            <span class="ct-sub">Άνοιγμα PDF: Ελληνικά · ESC · ACC/AHA/HRS</span>
+          </span>
+          <span class="ct-arrow">▼</span>
+        </button>
+
+        <div class="collapsible-content">
+          <div class="protocol-group-title">🇬🇷 Ελληνικά Πρωτόκολλα</div>
+
+          <button class="diag-btn" onclick="window.open('pdfs/ΚΟΛΠΙΚΗ ΜΑΡΜΑΡΥΓΗ 2024.pdf', '_blank')">
+            <span class="d-ico">🇬🇷</span>
+            <span class="d-label">
+              Ελληνικό Πρωτόκολλο ΚΜ
+              <span class="d-sub">Υπουργείο Υγείας 2024</span>
+            </span>
+          </button>
+
+          <button class="diag-btn" onclick="window.open('pdfs/ΚΟΙΛΙΑΚΕΣ ΑΡΡΥΘΜΙΕΣ 2024.pdf', '_blank')">
+            <span class="d-ico">🇬🇷</span>
+            <span class="d-label">
+              Ελληνικό Πρωτόκολλο Κοιλιακών Αρρυθμιών
+              <span class="d-sub">Υπουργείο Υγείας 2024</span>
+            </span>
+          </button>
+
+          <div class="protocol-group-title">🇪🇺 Ευρωπαϊκές Οδηγίες ESC</div>
+
+          <button class="diag-btn" onclick="window.open('pdfs/ESC_AF_2024.pdf', '_blank')">
+            <span class="d-ico">🇪🇺</span>
+            <span class="d-label">
+              ESC AF Guidelines
+              <span class="d-sub">Κολπική Μαρμαρυγή 2024</span>
+            </span>
+          </button>
+
+          <button class="diag-btn" onclick="window.open('pdfs/ESC_VA_2022.pdf', '_blank')">
+            <span class="d-ico">🇪🇺</span>
+            <span class="d-label">
+              ESC Ventricular Arrhythmias
+              <span class="d-sub">Κοιλιακές Αρρυθμίες 2022</span>
+            </span>
+          </button>
+
+          <button class="diag-btn" onclick="window.open('pdfs/ESC_SVT_2020.pdf', '_blank')">
+            <span class="d-ico">🇪🇺</span>
+            <span class="d-label">
+              ESC SVT Guidelines
+              <span class="d-sub">Υπερκοιλιακές ταχυκαρδίες 2020</span>
+            </span>
+          </button>
+
+          <div class="protocol-group-title">🇺🇸 Αμερικανικές Οδηγίες ACC/AHA/HRS</div>
+
+          <button class="diag-btn" onclick="window.open('pdfs/ACC_AHA_HRS_AF_2023.pdf', '_blank')">
+            <span class="d-ico">🇺🇸</span>
+            <span class="d-label">
+              ACC/AHA/HRS AF Guidelines
+              <span class="d-sub">Αμερικανικές οδηγίες 2023</span>
+            </span>
+          </button>
+
+          <button class="diag-btn" onclick="window.open('pdfs/AHA_ACC_HRS_VA_2017.pdf', '_blank')">
+            <span class="d-ico">🇺🇸</span>
+            <span class="d-label">
+              AHA/ACC/HRS Ventricular Arrhythmias
+              <span class="d-sub">Αμερικανικές οδηγίες 2017</span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Diagrams -->
+      <div class="diag-section">
+        <h4>📊 Γρήγορα Διαγράμματα</h4>
+        <button class="diag-btn" onclick="askSuggestion('Ποια είναι η θεραπευτική διαχείριση και παρακολούθηση ασθενή με κολπική μαρμαρυγή;')">
+          <span class="d-ico">🫀</span>
+          <span class="d-label">Κολπική Μαρμαρυγή<span class="d-sub">Θεραπεία & παρακολούθηση</span></span>
+        </button>
+        <button class="diag-btn" onclick="askSuggestion('Πώς αντιμετωπίζεται η εμμένουσα μονόμορφη κοιλιακή ταχυκαρδία;')">
+          <span class="d-ico">⚡</span>
+          <span class="d-label">Κοιλιακή Ταχυκαρδία<span class="d-sub">Οξεία διαχείριση</span></span>
+        </button>
+        <button class="diag-btn" onclick="askSuggestion('Αντιμετώπιση ηλεκτρικής θύελλας από πολύμορφη κοιλιακή ταχυκαρδία')">
+          <span class="d-ico">🌩️</span>
+          <span class="d-label">Ηλεκτρική Θύελλα<span class="d-sub">Πολύμορφη ΚΤ</span></span>
+        </button>
+        <button class="diag-btn" onclick="askSuggestion('Πώς διαχειριζόμαστε κοιλιακές αρρυθμίες; Αλγόριθμος')">
+          <span class="d-ico">🔧</span>
+          <span class="d-label">Αλγόριθμος Κοιλιακών<span class="d-sub">Διαχείριση & ICD</span></span>
+        </button>
+      </div>
+
+      <!-- Suggested Questions -->
+      <!-- Suggested Questions -->
+      <div class="collapsible-section open" id="suggestedQuestionsSection">
+        <button class="collapsible-toggle" type="button" onclick="toggleSuggestedQuestions()">
+          <span class="ct-left">
+            <span class="ct-title">💡 Προτεινόμενες Ερωτήσεις <span class="suggested-count">12</span></span>
+            <span class="ct-sub">Γρήγορες ερωτήσεις για AF, κοιλιακές αρρυθμίες και σύγκριση οδηγιών</span>
+          </span>
+          <span class="ct-arrow">▼</span>
+        </button>
+
+        <div class="collapsible-content">
+          <button class="diag-btn" onclick="askSuggestion('Τι είναι το CHA₂DS₂-VASc score και πότε χρειάζομαι αντιπηκτικά;')">
+            <span class="d-ico">💊</span>
+            <span class="d-label">CHA₂DS₂-VASc score<span class="d-sub">Πότε χρειάζομαι αντιπηκτικά;</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Ποια είναι η διαφορά έλεγχου ρυθμού και συχνότητας;')">
+            <span class="d-ico">🔄</span>
+            <span class="d-label">Ρυθμός vs Συχνότητα<span class="d-sub">Στρατηγική ΚΜ</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Ποια είναι τα αντιπηκτικά που χρησιμοποιούνται στην κολπική μαρμαρυγή;')">
+            <span class="d-ico">🧪</span>
+            <span class="d-label">Αντιπηκτική αγωγή<span class="d-sub">DOACs, VKA και εξαιρέσεις</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Πότε ενδείκνυται κατάλυση στην κολπική μαρμαρυγή;')">
+            <span class="d-ico">🎯</span>
+            <span class="d-label">Κατάλυση ΚΜ<span class="d-sub">Ablation και επιλογή ασθενών</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Πώς γίνεται η παρακολούθηση ασθενούς με κολπική μαρμαρυγή;')">
+            <span class="d-ico">📅</span>
+            <span class="d-label">Παρακολούθηση ΚΜ<span class="d-sub">ΗΚΓ, Holter, νεφρική λειτουργία</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Ποιοι παράγοντες κινδύνου επηρεάζουν την κολπική μαρμαρυγή;')">
+            <span class="d-ico">🏃</span>
+            <span class="d-label">Παράγοντες κινδύνου<span class="d-sub">Πίεση, διαβήτης, βάρος, ύπνος</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Ποιες είναι οι ενδείξεις εμφύτευσης απινιδωτή ICD;')">
+            <span class="d-ico">🔋</span>
+            <span class="d-label">Εμφύτευση ICD<span class="d-sub">Ενδείξεις απινιδωτή</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Πώς αντιμετωπίζεται η αιμοδυναμικά ασταθής κοιλιακή ταχυκαρδία;')">
+            <span class="d-ico">🚨</span>
+            <span class="d-label">Ασταθής Κοιλιακή Ταχυκαρδία<span class="d-sub">Επείγουσα αντιμετώπιση</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Τι είναι η ηλεκτρική θύελλα και πώς αντιμετωπίζεται;')">
+            <span class="d-ico">⚠️</span>
+            <span class="d-label">Ηλεκτρική Θύελλα<span class="d-sub">Ορισμός και επείγον</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Πότε χρειάζεται Holter σε ασθενή με αρρυθμία;')">
+            <span class="d-ico">📈</span>
+            <span class="d-label">Holter ρυθμού<span class="d-sub">Διαγνωστικός έλεγχος</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Ποιες είναι οι διαφορές ελληνικών, ESC και ACC/AHA/HRS οδηγιών για κολπική μαρμαρυγή;')">
+            <span class="d-ico">🌍</span>
+            <span class="d-label">Ελληνικά vs ESC vs ACC/AHA/HRS<span class="d-sub">Σύγκριση πρωτοκόλλων</span></span>
+          </button>
+
+          <button class="diag-btn" onclick="askSuggestion('Ποιες είναι οι διαφορές ESC και ACC/AHA/HRS οδηγιών στις κοιλιακές αρρυθμίες;')">
+            <span class="d-ico">⚖️</span>
+            <span class="d-label">ESC vs ACC/AHA/HRS<span class="d-sub">Κοιλιακές αρρυθμίες</span></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="sidebar-body" id="historyList">
+        <div class="sidebar-empty">Δεν υπάρχουν ακόμη ερωτήσεις.</div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="secondary-btn" onclick="exportToPDF()">📄 Export σε PDF</button>
+      </div>
+    </aside>
+
+    <!-- CHAT -->
+    <main class="chat-layout">
+      <header class="chat-header">
+        <div class="chat-title">
+          <div class="bot-avatar">🫀</div>
+          <div>
+            <h1>Cardio Chatbot</h1>
+            <span>Κλινική υποστήριξη αποφάσεων βασισμένη σε Ελληνικά, ESC & ACC/AHA/HRS πρωτόκολλα</span>
+          </div>
+        </div>
+        <div class="user-type-select">
+          <label for="userType">Τύπος:</label>
+          <select id="userType" title="Ασθενής = απλές εξηγήσεις | Γιατρός = ιατρική ορολογία">
+            <option value="patient">👤 Ασθενής</option>
+            <option value="doctor">🩺 Γιατρός</option>
+          </select>
+          <button class="top-action-btn" onclick="openMethodModal()" title="Μεθοδολογία RAG">Μεθοδολογία</button>
+          <button class="top-action-btn" onclick="openAboutModal()" title="Σχετικά με το σύστημα">Σχετικά</button>
+          <button id="themeToggle" class="icon-btn" title="Εναλλαγή θέματος">🌙</button>
+        </div>
+      </header>
+
+      <section class="chat-main" id="chatMain">
+        <div class="chat-placeholder">
+          Υποβάλετε ένα ερώτημα σχετικό με καρδιολογικές παθήσεις<br>
+          <span style="font-size:10px;opacity:0.5;">ή επιλέξτε από το μενού αριστερά</span>
+        </div>
+      </section>
+
+      <footer class="chat-footer">
+        <textarea id="userInput" rows="1"
+          placeholder="Γράψτε την ερώτησή σας... (π.χ. «Πότε χρειάζομαι αντιπηκτικά;»)"
+          onkeydown="handleKeyDown(event)"></textarea>
+        <div class="right-controls">
+          <button class="icon-btn" onclick="startVoiceInput()" title="Φωνητική εισαγωγή">🎙️</button>
+          <label class="voice-label" title="Ανάγνωση απάντησης φωνητικά">
+            <input type="checkbox" id="speakToggle" /> TTS
+          </label>
+          <button id="sendBtn" class="icon-btn" onclick="sendMessage()" title="Αποστολή">➡️</button>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- ABOUT MODAL -->
+  <div id="aboutModal" class="about-modal">
+    <div class="about-card">
+      <div class="about-head">
+        <h3>Σχετικά με το Cardio Chatbot Web App</h3>
+        <button class="about-close" onclick="closeAboutModal()">×</button>
+      </div>
+      <div class="about-body">
+        <p>
+          Το <strong>Cardio Chatbot</strong> είναι web-based σύστημα υποστήριξης κλινικών αποφάσεων
+          για καρδιολογικές αρρυθμίες, με έμφαση στην κολπική μαρμαρυγή και τις κοιλιακές αρρυθμίες.
+        </p>
+
+        <div class="about-grid">
+          <div class="about-mini">
+            <b>Backend</b>
+            FastAPI, Python, RAG pipeline, embeddings και ανάκτηση αποσπασμάτων από PDF πρωτόκολλα.
+          </div>
+          <div class="about-mini">
+            <b>Frontend</b>
+            HTML, CSS και JavaScript με chat UI, διαδραστικά flowcharts και export σε PDF.
+          </div>
+          <div class="about-mini">
+            <b>Πηγές</b>
+            Ελληνικά πρωτόκολλα, ESC Guidelines και ACC/AHA/HRS Guidelines.
+          </div>
+          <div class="about-mini">
+            <b>Προσαρμογή χρήστη</b>
+            Διαφορετική παρουσίαση για ασθενή και γιατρό, με απλά ή εξειδικευμένα διαγράμματα.
+          </div>
+        </div>
+
+        <div class="about-warning">
+          Το σύστημα αποτελεί εργαλείο πληροφόρησης και υποστήριξης. Δεν αντικαθιστά την κλινική κρίση ιατρού,
+          ούτε χρησιμοποιείται για εξατομικευμένη διάγνωση ή θεραπευτική απόφαση.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METHODOLOGY MODAL -->
+  <div id="methodModal" class="method-modal">
+    <div class="method-card">
+      <div class="method-head">
+        <h3>Μεθοδολογία RAG — Πώς λειτουργεί το σύστημα</h3>
+        <button class="method-close" onclick="closeMethodModal()">×</button>
+      </div>
+
+      <div class="method-body">
+        <p>
+          Το Cardio Chatbot χρησιμοποιεί αρχιτεκτονική <strong>Retrieval-Augmented Generation (RAG)</strong>.
+          Δηλαδή, πριν δημιουργηθεί η απάντηση, το σύστημα αναζητά σχετικά αποσπάσματα από τα διαθέσιμα
+          κλινικά πρωτόκολλα PDF και τα χρησιμοποιεί ως τεκμηριωμένο context.
+        </p>
+
+        <div class="pipeline-grid">
+          <div class="pipeline-step">
+            <span class="pnum">1</span>
+            <b>Φόρτωση PDF</b>
+            <span>Εισαγωγή ελληνικών, ESC και ACC/AHA/HRS πρωτοκόλλων στο σύστημα.</span>
+          </div>
+
+          <div class="pipeline-step">
+            <span class="pnum">2</span>
+            <b>Εξαγωγή κειμένου</b>
+            <span>Ανάγνωση των PDF και μετατροπή του περιεχομένου σε επεξεργάσιμο κείμενο.</span>
+          </div>
+
+          <div class="pipeline-step">
+            <span class="pnum">3</span>
+            <b>Chunking</b>
+            <span>Διαίρεση του κειμένου σε μικρότερα αποσπάσματα με επικάλυψη για καλύτερη ανάκτηση.</span>
+          </div>
+
+          <div class="pipeline-step">
+            <span class="pnum">4</span>
+            <b>Embeddings</b>
+            <span>Μετατροπή κάθε αποσπάσματος σε αριθμητική αναπαράσταση σημασιολογικού περιεχομένου.</span>
+          </div>
+
+          <div class="pipeline-step">
+            <span class="pnum">5</span>
+            <b>Similarity Search</b>
+            <span>Αναζήτηση των πιο σχετικών αποσπασμάτων με βάση την ερώτηση του χρήστη.</span>
+          </div>
+
+          <div class="pipeline-step">
+            <span class="pnum">6</span>
+            <b>Prompt Construction</b>
+            <span>Δημιουργία prompt με διαχωρισμό Ελληνικών, ESC και ACC/AHA/HRS πηγών.</span>
+          </div>
+
+          <div class="pipeline-step">
+            <span class="pnum">7</span>
+            <b>LLM Response</b>
+            <span>Παραγωγή δομημένης απάντησης με σύγκριση οδηγιών και κλινική προσοχή.</span>
+          </div>
+
+          <div class="pipeline-step">
+            <span class="pnum">8</span>
+            <b>UI Presentation</b>
+            <span>Προβολή απάντησης, πηγών, PDF και διαδραστικών διαγραμμάτων στο web app.</span>
+          </div>
+        </div>
+
+        <div class="method-two-col">
+          <div class="method-box">
+            <b>Τι προσφέρει η RAG προσέγγιση</b>
+            <span>
+              Μειώνει την πιθανότητα απαντήσεων χωρίς τεκμηρίωση, επειδή το μοντέλο καθοδηγείται
+              από συγκεκριμένα αποσπάσματα των κλινικών πρωτοκόλλων.
+            </span>
+          </div>
+
+          <div class="method-box">
+            <b>Γιατί υπάρχουν τρεις κατηγορίες πηγών</b>
+            <span>
+              Το σύστημα συγκρίνει ελληνικά πρωτόκολλα, ευρωπαϊκές οδηγίες ESC και αμερικανικές οδηγίες
+              ACC/AHA/HRS, ώστε ο χρήστης να βλέπει ομοιότητες και διαφορές.
+            </span>
+          </div>
+        </div>
+
+        <div class="method-warning">
+          Η μεθοδολογία υποστηρίζει την πληροφόρηση και την εκπαιδευτική χρήση. Δεν αντικαθιστά την
+          κλινική κρίση ιατρού και δεν πρέπει να χρησιμοποιείται ως μοναδική βάση θεραπευτικής απόφασης.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIAGRAM PANEL -->
+  <div id="diagramPanel">
+    <div class="dpanel-header">
+      <h3 id="diagramPanelTitle">Εξήγηση Διαγράμματος</h3>
+      <button class="dpanel-close" onclick="closeDiagramPanel()">✕</button>
+    </div>
+    <div class="dpanel-img-wrap">
+      <img id="diagramPanelImg" src="" alt="Διάγραμμα" />
+    </div>
+    <div class="dpanel-hint">👆 Κλικ σε βήμα του διαγράμματος ή ρώτησε παρακάτω</div>
+    <div id="diagramChatMessages"></div>
+    <div class="dpanel-footer">
+      <textarea id="diagramInput" rows="1"
+        placeholder="Ρώτησε για οποιοδήποτε βήμα…"
+        onkeydown="handleDiagramKey(event)"></textarea>
+      <button class="dpanel-send" onclick="sendDiagramQuestion()">➤</button>
+    </div>
+  </div>
+
+  <script>
+    function openAboutModal() {
+      document.getElementById('aboutModal')?.classList.add('open');
+    }
+
+    function closeAboutModal() {
+      document.getElementById('aboutModal')?.classList.remove('open');
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeAboutModal();
+    });
+  </script>
+
+  <script>
+    function toggleProtocolSources() {
+      const section = document.getElementById('protocolSourcesSection');
+      if (!section) return;
+
+      section.classList.toggle('open');
+      localStorage.setItem(
+        'protocol_sources_open',
+        section.classList.contains('open') ? '1' : '0'
+      );
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const section = document.getElementById('protocolSourcesSection');
+      if (section && localStorage.getItem('protocol_sources_open') === '1') {
+        section.classList.add('open');
+      }
+    });
+  </script>
+
+  <script>
+    function toggleSuggestedQuestions() {
+      const section = document.getElementById('suggestedQuestionsSection');
+      if (!section) return;
+
+      section.classList.toggle('open');
+      localStorage.setItem(
+        'suggested_questions_open',
+        section.classList.contains('open') ? '1' : '0'
+      );
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const section = document.getElementById('suggestedQuestionsSection');
+      if (!section) return;
+
+      const saved = localStorage.getItem('suggested_questions_open');
+      if (saved === '0') section.classList.remove('open');
+      if (saved === '1') section.classList.add('open');
+    });
+  </script>
+
+  <script>
+    function openMethodModal() {
+      document.getElementById('methodModal')?.classList.add('open');
+    }
+
+    function closeMethodModal() {
+      document.getElementById('methodModal')?.classList.remove('open');
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeMethodModal();
+    });
+  </script>
+
+  <script src="script.js"></script>
+  <script>
+    if (localStorage.getItem('onb_seen')) {
+      document.getElementById('onboarding').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
